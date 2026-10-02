@@ -29,9 +29,9 @@
     .btn-primary { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
     .btn-line { background-color: #06C755; color: #fff; padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; width: auto; }
     
-    /* Segment Control (ปุ่มเลือก ช่วงเวลา) */
+    /* Segment Control (ปุ่มเลือกช่วงเวลา) */
     .range-selector { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 12px; }
-    .range-btn { flex: 1; padding: 6px 0; border: none; background: transparent; font-size: 0.78rem; font-weight: 500; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .range-btn { flex: 1; padding: 8px 0; border: none; background: transparent; font-size: 0.78rem; font-weight: 500; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
     .range-btn.active { background: #ffffff; color: #0284c7; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
     /* Summary Main Box */
@@ -94,12 +94,12 @@
 
     <!-- ปุ่มเลือกระยะเวลาการสรุปผล -->
     <div class="range-selector">
-      <button class="range-btn active" onclick="setRange('1', this)">รายวัน (1 วัน)</button>
-      <button class="range-btn" onclick="setRange('3', this)">ราย 3 วัน</button>
+      <button class="range-btn active" onclick="setRange('1', this)">รายวัน</button>
+      <button class="range-btn" onclick="setRange('7', this)">รายสัปดาห์ (7 วัน)</button>
       <button class="range-btn" onclick="setRange('30', this)">รายเดือน (30 วัน)</button>
     </div>
 
-    <!-- ตัวเลือกว่าที่เริ่มต้น / ปุ่มส่ง LINE -->
+    <!-- ตัวเลือกวันที่อ้างอิง / ปุ่มส่ง LINE -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
       <input type="date" id="filterDate" onchange="loadRecords()" class="form-control" style="background: #fff;">
       <button type="button" id="sendLineBtn" onclick="sendSummaryToLine()" class="btn btn-line">
@@ -163,13 +163,17 @@
     document.getElementById('datetime').value = now.toISOString().slice(0, 16);
     document.getElementById('filterDate').value = now.toISOString().slice(0, 10);
 
-    // สลับโหมด รายวัน / 3 วัน / รายเดือน
+    // สลับโหมด รายวัน / รายสัปดาห์ (7 วัน) / รายเดือน (30 วัน)
     function setRange(days, btn) {
       currentRangeDays = parseInt(days);
       document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       
-      const titles = { 1: 'ยอดรวมประจำวัน', 3: 'ยอดรวมย้อนหลัง 3 วัน', 30: 'ยอดรวมย้อนหลัง 30 วัน (รายเดือน)' };
+      const titles = { 
+        1: 'ยอดรวมประจำวัน', 
+        7: 'ยอดรวมย้อนหลัง 7 วัน (รายสัปดาห์)', 
+        30: 'ยอดรวมย้อนหลัง 30 วัน (รายเดือน)' 
+      };
       document.getElementById('summaryTitle').innerText = titles[currentRangeDays];
       
       loadRecords();
