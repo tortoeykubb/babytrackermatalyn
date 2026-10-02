@@ -27,49 +27,51 @@
     
     .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-primary { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
+    .btn-cancel { background: #e2e8f0; color: #475569; margin-top: 6px; }
     .btn-line { background-color: #06C755; color: #fff; padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; width: auto; }
     
-    /* Segment Control (ปุ่มเลือกช่วงเวลา) */
     .range-selector { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 12px; }
     .range-btn { flex: 1; padding: 8px 0; border: none; background: transparent; font-size: 0.78rem; font-weight: 500; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
     .range-btn.active { background: #ffffff; color: #0284c7; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-    /* Summary Main Box */
     .summary-card { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; padding: 18px; margin-bottom: 14px; }
     .summary-main { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; }
     .summary-main .total-label { font-size: 0.75rem; color: #94a3b8; }
     .summary-main .total-value { font-size: 1.8rem; font-weight: 700; color: #38bdf8; line-height: 1.1; }
     .summary-main .total-count { font-size: 0.85rem; color: #cbd5e1; }
 
-    /* Breakdown Grid (แยกประเภทนม) */
     .breakdown-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
     .breakdown-item { background: rgba(255, 255, 255, 0.06); padding: 8px 10px; border-radius: 10px; text-align: center; }
     .breakdown-item .name { font-size: 0.68rem; color: #94a3b8; margin-bottom: 2px; }
     .breakdown-item .val { font-size: 0.95rem; font-weight: 600; color: #f8fafc; }
     .breakdown-item .cnt { font-size: 0.68rem; color: #64748b; }
 
-    /* History List Styling */
     .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
     .history-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background-color: #f8fafc; border-radius: 12px; border-left: 4px solid #38bdf8; }
     .history-time { font-size: 0.85rem; font-weight: 600; color: #334155; }
     .history-type { font-size: 0.72rem; color: #64748b; }
+    .history-right { display: flex; align-items: center; gap: 10px; }
     .history-amount { font-size: 0.95rem; font-weight: 700; color: #0284c7; }
+    
+    .action-btn { background: none; border: none; cursor: pointer; padding: 4px; font-size: 0.85rem; transition: color 0.2s; }
+    .btn-edit { color: #0284c7; }
+    .btn-delete { color: #ef4444; }
   </style>
 </head>
 <body>
   <div class="app-container">
-    <!-- Header -->
     <div class="header">
       <h1>🍼 บันทึกนมน้องมาตาลิณย์</h1>
       <p>ติดตามและสรุปผลการทานนมรายวัน</p>
     </div>
 
-    <!-- บันทึกข้อมูล -->
+    <!-- ฟอร์มบันทึก / แก้ไขข้อมูล -->
     <div class="card">
       <div class="card-title">
-        <span><i class="fa-solid fa-pen-to-square" style="color: #0284c7;"></i> บันทึกรายการใหม่</span>
+        <span id="formTitle"><i class="fa-solid fa-pen-to-square" style="color: #0284c7;"></i> บันทึกรายการใหม่</span>
       </div>
       <form id="milkForm">
+        <input type="hidden" id="editId" value="">
         <div class="form-group">
           <label>วัน-เวลา</label>
           <input type="datetime-local" id="datetime" required class="form-control">
@@ -87,7 +89,10 @@
           </select>
         </div>
         <button type="submit" id="saveBtn" class="btn btn-primary">
-          <i class="fa-solid fa-floppy-disk"></i> บันทึกการทานนม
+          <i class="fa-solid fa-floppy-disk"></i> <span id="saveBtnText">บันทึกการทานนม</span>
+        </button>
+        <button type="button" id="cancelEditBtn" onclick="cancelEdit()" class="btn btn-cancel" style="display: none;">
+          ยกเลิกการแก้ไข
         </button>
       </form>
     </div>
@@ -99,7 +104,6 @@
       <button class="range-btn" onclick="setRange('30', this)">รายเดือน (30 วัน)</button>
     </div>
 
-    <!-- ตัวเลือกวันที่อ้างอิง / ปุ่มส่ง LINE -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
       <input type="date" id="filterDate" onchange="loadRecords()" class="form-control" style="background: #fff;">
       <button type="button" id="sendLineBtn" onclick="sendSummaryToLine()" class="btn btn-line">
@@ -107,7 +111,7 @@
       </button>
     </div>
 
-    <!-- สรุปผลรวมแบบแยกประเภทนม -->
+    <!-- สรุปผลรวม -->
     <div class="summary-card">
       <div class="summary-main">
         <div>
@@ -117,7 +121,6 @@
         <div class="total-count" id="totalCount">รวม 0 ครั้ง</div>
       </div>
 
-      <!-- แยกประเภทนม -->
       <div class="breakdown-grid">
         <div class="breakdown-item">
           <div class="name">🤱 เข้าเต้า</div>
@@ -137,7 +140,7 @@
       </div>
     </div>
 
-    <!-- ประวัติการบันทึก (History List) -->
+    <!-- ประวัติการบันทึก ( History List ) -->
     <div class="card">
       <div class="card-title">
         <span><i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> ประวัติการทานนม</span>
@@ -150,6 +153,7 @@
 
   <script>
     let currentRangeDays = 1;
+    let allFetchedRecords = [];
 
     const sourceLabels = {
       breast: 'นมแม่ (เข้าเต้า)',
@@ -157,13 +161,11 @@
       formula: 'นมผง'
     };
 
-    // ตั้งค่าเวลาปัจจุบัน
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('datetime').value = now.toISOString().slice(0, 16);
     document.getElementById('filterDate').value = now.toISOString().slice(0, 10);
 
-    // สลับโหมด รายวัน / รายสัปดาห์ (7 วัน) / รายเดือน (30 วัน)
     function setRange(days, btn) {
       currentRangeDays = parseInt(days);
       document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
@@ -175,15 +177,12 @@
         30: 'ยอดรวมย้อนหลัง 30 วัน (รายเดือน)' 
       };
       document.getElementById('summaryTitle').innerText = titles[currentRangeDays];
-      
       loadRecords();
     }
 
-    // ดึงและคำนวณข้อมูล
     async function loadRecords() {
       const selectedDateStr = document.getElementById('filterDate').value;
       const container = document.getElementById('historyContainer');
-      
       if (!selectedDateStr) return;
 
       const endDate = new Date(selectedDateStr + 'T23:59:59');
@@ -192,19 +191,16 @@
 
       try {
         const res = await fetch('/api/records');
-        const data = await res.json();
+        allFetchedRecords = await res.json();
 
-        // กรองตามช่วงวันที่เลือก
-        const filteredRecords = data.filter(item => {
+        const filteredRecords = allFetchedRecords.filter(item => {
           if (!item.datetime) return false;
           const itemDate = new Date(item.datetime);
           return itemDate >= startDate && itemDate <= endDate;
         });
 
-        // เรียงเวลาล่าสุดขึ้นก่อน
         filteredRecords.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
 
-        // ตัวแปรเก็บยอดรวม
         let totalOz = 0;
         let stats = {
           breast: { oz: 0, count: 0 },
@@ -217,7 +213,7 @@
         if (filteredRecords.length === 0) {
           container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">ไม่มีรายการในช่วงเวลาที่เลือก</div>`;
         } else {
-          filteredRecords.forEach(item => {
+          filteredRecords.forEach((item, idx) => {
             const oz = parseFloat(item.amount) || 0;
             totalOz += oz;
 
@@ -229,6 +225,7 @@
             const dt = new Date(item.datetime);
             const dateDisplay = currentRangeDays > 1 ? `${dt.getDate()}/${dt.getMonth()+1} ` : '';
             const timeStr = item.datetime.includes('T') ? item.datetime.split('T')[1].slice(0, 5) : item.datetime;
+            const recordId = item.id || `idx_${idx}`;
 
             html += `
               <div class="history-item">
@@ -236,14 +233,17 @@
                   <div class="history-time"><i class="fa-regular fa-clock"></i> ${dateDisplay}${timeStr} น.</div>
                   <div class="history-type">${sourceLabels[item.source] || item.source}</div>
                 </div>
-                <div class="history-amount">${oz} <span style="font-size:0.75rem; font-weight:normal;">oz</span></div>
+                <div class="history-right">
+                  <div class="history-amount">${oz} <span style="font-size:0.75rem; font-weight:normal;">oz</span></div>
+                  <button class="action-btn btn-edit" onclick="startEdit('${recordId}')" title="แก้ไข"><i class="fa-solid fa-pen"></i></button>
+                  <button class="action-btn btn-delete" onclick="deleteRecord('${recordId}')" title="ลบ"><i class="fa-solid fa-trash"></i></button>
+                </div>
               </div>
             `;
           });
           container.innerHTML = html;
         }
 
-        // อัปเดตตัวเลขหน้าเว็บ
         document.getElementById('totalAmount').innerHTML = `${totalOz} <span style="font-size:0.9rem; font-weight:normal;">oz</span>`;
         document.getElementById('totalCount').innerText = `รวม ${filteredRecords.length} ครั้ง`;
 
@@ -262,31 +262,89 @@
       }
     }
 
-    // บันทึกข้อมูล
+    // เริ่มการแก้ไขข้อมูล
+    function startEdit(id) {
+      const item = allFetchedRecords.find(r => r.id === id);
+      if (!item) return;
+
+      document.getElementById('editId').value = item.id;
+      document.getElementById('datetime').value = item.datetime;
+      document.getElementById('amount').value = item.amount;
+      document.getElementById('source').value = item.source;
+
+      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: #eab308;"></i> แก้ไขรายการ`;
+      document.getElementById('saveBtnText').innerText = 'อัปเดตข้อมูล';
+      document.getElementById('cancelEditBtn').style.display = 'block';
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // ยกเลิกการแก้ไข
+    function cancelEdit() {
+      document.getElementById('editId').value = '';
+      document.getElementById('amount').value = '';
+      
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      document.getElementById('datetime').value = now.toISOString().slice(0, 16);
+
+      document.getElementById('formTitle').innerHTML = `<i class="fa-solid fa-pen-to-square" style="color: #0284c7;"></i> บันทึกรายการใหม่`;
+      document.getElementById('saveBtnText').innerText = 'บันทึกการทานนม';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    }
+
+    // ลบรายการ
+    async function deleteRecord(id) {
+      if (!confirm('คุณต้องการลบรายการนี้ใช่หรือไม่?')) return;
+
+      try {
+        const response = await fetch('/api/records', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+
+        if (response.ok) {
+          loadRecords();
+        } else {
+          alert('ไม่สามารถลบรายการได้');
+        }
+      } catch (err) {
+        alert('เกิดข้อผิดพลาดในการลบรายการ');
+      }
+    }
+
+    // บันทึก / อัปเดตข้อมูล
     document.getElementById('milkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const saveBtn = document.getElementById('saveBtn');
       saveBtn.disabled = true;
 
+      const editId = document.getElementById('editId').value;
       const formData = {
+        id: editId || Date.now().toString(),
         datetime: document.getElementById('datetime').value,
         amount: parseFloat(document.getElementById('amount').value),
         source: document.getElementById('source').value
       };
 
+      const method = editId ? 'PUT' : 'POST';
+
       try {
         const response = await fetch('/api/records', {
-          method: 'POST',
+          method: method,
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(formData)
         });
 
         if (response.ok) {
-          document.getElementById('amount').value = '';
+          cancelEdit();
           loadRecords();
+        } else {
+          alert('เกิดข้อผิดพลาดในการบันทึก');
         }
       } catch (err) {
-        alert('เกิดข้อผิดพลาดในการบันทึก');
+        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
       } finally {
         saveBtn.disabled = false;
       }
@@ -317,7 +375,6 @@
       }
     }
 
-    // โหลดข้อมูลครั้งแรก
     loadRecords();
   </script>
 </body>
