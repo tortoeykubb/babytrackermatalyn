@@ -4,167 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Baby Milk Tracker - น้องมาตาลิณย์</title>
-  <!-- Google Font: Prompt -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Prompt', sans-serif;
-    }
-    body {
-      background-color: #f3f4f6;
-      color: #1f2937;
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 16px;
-    }
-    .app-container {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-    .header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .header h1 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: #0f172a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .header p {
-      font-size: 0.85rem;
-      color: #64748b;
-      margin-top: 4px;
-    }
-    .card {
-      background: #ffffff;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-      margin-bottom: 16px;
-    }
-    .card-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #334155;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .form-group {
-      margin-bottom: 14px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: #64748b;
-      margin-bottom: 6px;
-    }
-    .form-control {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      color: #1e293b;
-      background-color: #f8fafc;
-      outline: none;
-      transition: all 0.2s;
-    }
-    .form-control:focus {
-      border-color: #38bdf8;
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15);
-    }
-    .btn {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #0284c7, #38bdf8);
-      color: #ffffff;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25);
-    }
-    .btn-primary:hover {
-      opacity: 0.95;
-      transform: translateY(-1px);
-    }
-    .btn-line {
-      background-color: #06C755;
-      color: #ffffff;
-      padding: 8px 12px;
-      font-size: 0.8rem;
-      border-radius: 8px;
-      width: auto;
-      white-space: nowrap;
-    }
-    .btn-line:hover {
-      background-color: #05b34c;
-    }
-    .flex-between {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-    .summary-box {
-      text-align: center;
-      padding: 20px 10px;
-      color: #94a3b8;
-      font-size: 0.85rem;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Prompt', sans-serif; }
+    body { background-color: #f8fafc; color: #1e293b; display: flex; justify-content: center; min-height: 100vh; padding: 16px; }
+    .app-container { width: 100%; max-width: 430px; margin: 0 auto; }
+    .header { text-align: center; margin-bottom: 16px; }
+    .header h1 { font-size: 1.4rem; font-weight: 700; color: #0f172a; }
+    .header p { font-size: 0.8rem; color: #64748b; }
+    
+    .card { background: #ffffff; border-radius: 20px; padding: 18px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); margin-bottom: 14px; border: 1px solid #f1f5f9; }
+    .card-title { font-size: 0.95rem; font-weight: 600; color: #334155; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 0.78rem; font-weight: 500; color: #64748b; margin-bottom: 4px; }
+    .form-control { width: 100%; padding: 10px 12px; border: 1.5px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; color: #1e293b; background-color: #f8fafc; outline: none; }
+    .form-control:focus { border-color: #38bdf8; background-color: #fff; }
+    
+    .btn { width: 100%; padding: 12px; border: none; border-radius: 12px; font-size: 0.9rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+    .btn-primary { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
+    .btn-line { background-color: #06C755; color: #fff; padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; width: auto; }
+    
+    /* Summary Card Styling */
+    .summary-card { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; padding: 18px; margin-bottom: 14px; }
+    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .summary-item { background: rgba(255, 255, 255, 0.08); padding: 10px 12px; border-radius: 12px; }
+    .summary-item .label { font-size: 0.72rem; color: #94a3b8; }
+    .summary-item .value { font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-top: 2px; }
+
+    /* History List Styling */
+    .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .history-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; background-color: #f8fafc; border-radius: 12px; border-left: 4px solid #38bdf8; }
+    .history-time { font-size: 0.85rem; font-weight: 600; color: #334155; }
+    .history-type { font-size: 0.72rem; color: #64748b; }
+    .history-amount { font-size: 0.95rem; font-weight: 700; color: #0284c7; }
   </style>
 </head>
 <body>
   <div class="app-container">
     <!-- Header -->
     <div class="header">
-      <h1>🍼 Baby Milk Tracker - น้องมาตาลิณย์ </h1>
-      <p>ระบบบันทึกและติดตามการทานนมรายวัน</p>
+      <h1>🍼 บันทึกนมน้องมาตาลิณย์</h1>
+      <p>ติดตามและสรุปผลการทานนมรายวัน</p>
     </div>
 
-    <!-- บันทึกรายการใหม่ -->
+    <!-- บันทึกข้อมูล -->
     <div class="card">
       <div class="card-title">
-        <i class="fa-solid fa-pen-to-square" style="color: #0284c7;"></i>
-        บันทึกการทานนม
+        <span><i class="fa-solid fa-pen-to-square" style="color: #0284c7;"></i> บันทึกรายการใหม่</span>
       </div>
       <form id="milkForm">
         <div class="form-group">
           <label>วัน-เวลา</label>
           <input type="datetime-local" id="datetime" required class="form-control">
         </div>
-
         <div class="form-group">
           <label>ปริมาณ (ออนซ์)</label>
           <input type="number" step="0.5" id="amount" required class="form-control" placeholder="เช่น 3 หรือ 3.5">
         </div>
-
         <div class="form-group">
           <label>ประเภทนม</label>
           <select id="source" class="form-control">
@@ -173,47 +74,111 @@
             <option value="formula">นมผง</option>
           </select>
         </div>
-
         <button type="submit" id="saveBtn" class="btn btn-primary">
-          <i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล
+          <i class="fa-solid fa-floppy-disk"></i> บันทึกการทานนม
         </button>
       </form>
     </div>
 
-    <!-- สรุปผลรายวัน -->
-    <div class="card">
-      <div class="flex-between" style="margin-bottom: 12px;">
-        <div class="card-title" style="margin-bottom: 0;">
-          <i class="fa-solid fa-chart-pie" style="color: #06C755;"></i>
-          สรุปผล
+    <!-- เลือกวันที่เพื่อดูสรุป -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
+      <input type="date" id="filterDate" onchange="loadRecords()" class="form-control" style="background: #fff;">
+      <button type="button" id="sendLineBtn" onclick="sendSummaryToLine()" class="btn btn-line">
+        <i class="fa-brands fa-line" style="font-size: 0.9rem;"></i> ส่งเข้า LINE
+      </button>
+    </div>
+
+    <!-- สรุปผลรวม (Summary Box) -->
+    <div class="summary-card">
+      <div style="font-size: 0.8rem; color: #94a3b8;">📊 ยอดรวมประจำวันที่เลือก</div>
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="label">ปริมาณรวม</div>
+          <div class="value" id="totalAmount">0 <span style="font-size: 0.75rem; color: #fff;">ออนซ์</span></div>
         </div>
-        <div class="flex-between">
-          <input type="date" id="filterDate" class="form-control" style="padding: 6px 10px; font-size: 0.8rem;">
-          <button type="button" id="sendLineBtn" onclick="sendSummaryToLine()" class="btn btn-line">
-            <i class="fa-brands fa-line" style="font-size: 1rem;"></i> ส่งเข้า LINE
-          </button>
+        <div class="summary-item">
+          <div class="label">จำนวนรวม</div>
+          <div class="value" id="totalCount" style="color: #4ade80;">0 <span style="font-size: 0.75rem; color: #fff;">ครั้ง</span></div>
         </div>
       </div>
+    </div>
 
-      <div id="summaryContent" class="summary-box">
-        เลือกวันที่ด้านบนเพื่อเลือกดูและส่งสรุปผล
+    <!-- ประวัติการบันทึก (History List) -->
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> ประวัติการทานนม (History)</span>
+      </div>
+      <div id="historyContainer" class="history-list">
+        <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">กำลังโหลดข้อมูล...</div>
       </div>
     </div>
   </div>
 
   <script>
-    // กำหนดเวลาปัจจุบัน
+    const sourceLabels = {
+      breast: 'นมแม่ (เข้าเต้า)',
+      stock: 'นมแม่ (สต็อก)',
+      formula: 'นมผง'
+    };
+
+    // ตั้งค่าเวลาปัจจุบัน
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('datetime').value = now.toISOString().slice(0, 16);
     document.getElementById('filterDate').value = now.toISOString().slice(0, 10);
 
-    // ส่งบันทึกข้อมูล
+    // ดึงและแสดงประวัติ + สรุปยอด
+    async function loadRecords() {
+      const selectedDate = document.getElementById('filterDate').value;
+      const container = document.getElementById('historyContainer');
+      
+      try {
+        const res = await fetch('/api/records');
+        const data = await res.json();
+
+        // กรองเฉพาะวันที่เลือก
+        const dayRecords = data.filter(item => item.datetime && item.datetime.startsWith(selectedDate));
+        dayRecords.sort((a, b) => new Date(b.datetime) - new Date(a.datetime)); // เรียงเวลาล่าสุดขึ้นก่อน
+
+        let totalOz = 0;
+        let html = '';
+
+        if (dayRecords.length === 0) {
+          container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">ไม่มีรายการของวันที่เลือก</div>`;
+        } else {
+          dayRecords.forEach(item => {
+            const oz = parseFloat(item.amount) || 0;
+            totalOz += oz;
+            const timeStr = item.datetime.includes('T') ? item.datetime.split('T')[1].slice(0, 5) : item.datetime;
+
+            html += `
+              <div class="history-item">
+                <div>
+                  <div class="history-time"><i class="fa-regular fa-clock"></i> ${timeStr} น.</div>
+                  <div class="history-type">${sourceLabels[item.source] || item.source}</div>
+                </div>
+                <div class="history-amount">${oz} <span style="font-size:0.75rem; font-weight:normal;">oz</span></div>
+              </div>
+            `;
+          });
+          container.innerHTML = html;
+        }
+
+        // อัปเดตการ์ดสรุปผล
+        document.getElementById('totalAmount').innerHTML = `${totalOz} <span style="font-size: 0.75rem; color: #fff;">ออนซ์</span>`;
+        document.getElementById('totalCount').innerHTML = `${dayRecords.length} <span style="font-size: 0.75rem; color: #fff;">ครั้ง</span>`;
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div style="text-align: center; color: #ef4444; font-size: 0.8rem; padding: 12px;">โหลดข้อมูลไม่สำเร็จ</div>`;
+      }
+    }
+
+    // บันทึกข้อมูล
     document.getElementById('milkForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       const saveBtn = document.getElementById('saveBtn');
       saveBtn.disabled = true;
-      saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
 
       const formData = {
         datetime: document.getElementById('datetime').value,
@@ -229,17 +194,13 @@
         });
 
         if (response.ok) {
-          alert('บันทึกเรียบร้อยแล้ว!');
           document.getElementById('amount').value = '';
-        } else {
-          alert('เกิดข้อผิดพลาดในการบันทึก');
+          loadRecords(); // โหลดประวัติใหม่ทันที
         }
       } catch (err) {
-        console.error(err);
-        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+        alert('เกิดข้อผิดพลาดในการบันทึก');
       } finally {
         saveBtn.disabled = false;
-        saveBtn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> บันทึกข้อมูล';
       }
     });
 
@@ -248,14 +209,8 @@
       const sendBtn = document.getElementById('sendLineBtn');
       const selectedDate = document.getElementById('filterDate').value;
 
-      if (!selectedDate) {
-        alert('กรุณาเลือกวันที่ก่อนกดส่งสรุป');
-        return;
-      }
-
-      const originalText = sendBtn.innerHTML;
       sendBtn.disabled = true;
-      sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังส่ง...';
+      sendBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
 
       try {
         const response = await fetch('/api/send-line-summary', {
@@ -263,22 +218,19 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ date: selectedDate })
         });
-
         const result = await response.json();
-
-        if (response.ok && result.success) {
-          alert('ส่งสรุปผลเข้า LINE เรียบร้อยแล้ว!');
-        } else {
-          alert('เกิดข้อผิดพลาด: ' + (result.error || 'ไม่สามารถส่งข้อความได้'));
-        }
+        if (response.ok && result.success) alert('ส่งสรุปเข้า LINE เรียบร้อยแล้ว!');
+        else alert('ส่งไม่สำเร็จ: ' + (result.error || ''));
       } catch (err) {
-        console.error('Error sending LINE summary:', err);
-        alert('ไม่สามารถเชื่อมต่อระบบส่ง LINE ได้');
+        alert('ไม่สามารถเชื่อมต่อ LINE ได้');
       } finally {
         sendBtn.disabled = false;
-        sendBtn.innerHTML = originalText;
+        sendBtn.innerHTML = '<i class="fa-brands fa-line"></i> ส่งเข้า LINE';
       }
     }
+
+    // โหลดข้อมูลครั้งแรก
+    loadRecords();
   </script>
 </body>
 </html>
