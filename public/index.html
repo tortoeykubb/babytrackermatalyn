@@ -29,12 +29,24 @@
     .btn-primary { background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.2); }
     .btn-line { background-color: #06C755; color: #fff; padding: 6px 12px; font-size: 0.78rem; border-radius: 8px; width: auto; }
     
-    /* Summary Card Styling */
+    /* Segment Control (ปุ่มเลือก ช่วงเวลา) */
+    .range-selector { display: flex; background: #e2e8f0; padding: 4px; border-radius: 12px; margin-bottom: 12px; }
+    .range-btn { flex: 1; padding: 6px 0; border: none; background: transparent; font-size: 0.78rem; font-weight: 500; color: #64748b; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+    .range-btn.active { background: #ffffff; color: #0284c7; font-weight: 600; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+    /* Summary Main Box */
     .summary-card { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; border-radius: 20px; padding: 18px; margin-bottom: 14px; }
-    .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
-    .summary-item { background: rgba(255, 255, 255, 0.08); padding: 10px 12px; border-radius: 12px; }
-    .summary-item .label { font-size: 0.72rem; color: #94a3b8; }
-    .summary-item .value { font-size: 1.2rem; font-weight: 700; color: #38bdf8; margin-top: 2px; }
+    .summary-main { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 12px; }
+    .summary-main .total-label { font-size: 0.75rem; color: #94a3b8; }
+    .summary-main .total-value { font-size: 1.8rem; font-weight: 700; color: #38bdf8; line-height: 1.1; }
+    .summary-main .total-count { font-size: 0.85rem; color: #cbd5e1; }
+
+    /* Breakdown Grid (แยกประเภทนม) */
+    .breakdown-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .breakdown-item { background: rgba(255, 255, 255, 0.06); padding: 8px 10px; border-radius: 10px; text-align: center; }
+    .breakdown-item .name { font-size: 0.68rem; color: #94a3b8; margin-bottom: 2px; }
+    .breakdown-item .val { font-size: 0.95rem; font-weight: 600; color: #f8fafc; }
+    .breakdown-item .cnt { font-size: 0.68rem; color: #64748b; }
 
     /* History List Styling */
     .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
@@ -80,7 +92,14 @@
       </form>
     </div>
 
-    <!-- เลือกวันที่เพื่อดูสรุป -->
+    <!-- ปุ่มเลือกระยะเวลาการสรุปผล -->
+    <div class="range-selector">
+      <button class="range-btn active" onclick="setRange('1', this)">รายวัน (1 วัน)</button>
+      <button class="range-btn" onclick="setRange('3', this)">ราย 3 วัน</button>
+      <button class="range-btn" onclick="setRange('30', this)">รายเดือน (30 วัน)</button>
+    </div>
+
+    <!-- ตัวเลือกว่าที่เริ่มต้น / ปุ่มส่ง LINE -->
     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 10px;">
       <input type="date" id="filterDate" onchange="loadRecords()" class="form-control" style="background: #fff;">
       <button type="button" id="sendLineBtn" onclick="sendSummaryToLine()" class="btn btn-line">
@@ -88,17 +107,32 @@
       </button>
     </div>
 
-    <!-- สรุปผลรวม (Summary Box) -->
+    <!-- สรุปผลรวมแบบแยกประเภทนม -->
     <div class="summary-card">
-      <div style="font-size: 0.8rem; color: #94a3b8;">📊 ยอดรวมประจำวันที่เลือก</div>
-      <div class="summary-grid">
-        <div class="summary-item">
-          <div class="label">ปริมาณรวม</div>
-          <div class="value" id="totalAmount">0 <span style="font-size: 0.75rem; color: #fff;">ออนซ์</span></div>
+      <div class="summary-main">
+        <div>
+          <div class="total-label" id="summaryTitle">ยอดรวมประจำวัน</div>
+          <div class="total-value" id="totalAmount">0 <span style="font-size:0.9rem; font-weight:normal;">oz</span></div>
         </div>
-        <div class="summary-item">
-          <div class="label">จำนวนรวม</div>
-          <div class="value" id="totalCount" style="color: #4ade80;">0 <span style="font-size: 0.75rem; color: #fff;">ครั้ง</span></div>
+        <div class="total-count" id="totalCount">รวม 0 ครั้ง</div>
+      </div>
+
+      <!-- แยกประเภทนม -->
+      <div class="breakdown-grid">
+        <div class="breakdown-item">
+          <div class="name">🤱 เข้าเต้า</div>
+          <div class="val" id="breastAmount">0 oz</div>
+          <div class="cnt" id="breastCount">(0 ครั้ง)</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="name">🍼 สต็อก</div>
+          <div class="val" id="stockAmount">0 oz</div>
+          <div class="cnt" id="stockCount">(0 ครั้ง)</div>
+        </div>
+        <div class="breakdown-item">
+          <div class="name">🥛 นมผง</div>
+          <div class="val" id="formulaAmount">0 oz</div>
+          <div class="cnt" id="formulaCount">(0 ครั้ง)</div>
         </div>
       </div>
     </div>
@@ -106,7 +140,7 @@
     <!-- ประวัติการบันทึก (History List) -->
     <div class="card">
       <div class="card-title">
-        <span><i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> ประวัติการทานนม (History)</span>
+        <span><i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> ประวัติการทานนม</span>
       </div>
       <div id="historyContainer" class="history-list">
         <div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">กำลังโหลดข้อมูล...</div>
@@ -115,6 +149,8 @@
   </div>
 
   <script>
+    let currentRangeDays = 1;
+
     const sourceLabels = {
       breast: 'นมแม่ (เข้าเต้า)',
       stock: 'นมแม่ (สต็อก)',
@@ -127,34 +163,73 @@
     document.getElementById('datetime').value = now.toISOString().slice(0, 16);
     document.getElementById('filterDate').value = now.toISOString().slice(0, 10);
 
-    // ดึงและแสดงประวัติ + สรุปยอด
+    // สลับโหมด รายวัน / 3 วัน / รายเดือน
+    function setRange(days, btn) {
+      currentRangeDays = parseInt(days);
+      document.querySelectorAll('.range-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const titles = { 1: 'ยอดรวมประจำวัน', 3: 'ยอดรวมย้อนหลัง 3 วัน', 30: 'ยอดรวมย้อนหลัง 30 วัน (รายเดือน)' };
+      document.getElementById('summaryTitle').innerText = titles[currentRangeDays];
+      
+      loadRecords();
+    }
+
+    // ดึงและคำนวณข้อมูล
     async function loadRecords() {
-      const selectedDate = document.getElementById('filterDate').value;
+      const selectedDateStr = document.getElementById('filterDate').value;
       const container = document.getElementById('historyContainer');
       
+      if (!selectedDateStr) return;
+
+      const endDate = new Date(selectedDateStr + 'T23:59:59');
+      const startDate = new Date(selectedDateStr + 'T00:00:00');
+      startDate.setDate(startDate.getDate() - (currentRangeDays - 1));
+
       try {
         const res = await fetch('/api/records');
         const data = await res.json();
 
-        // กรองเฉพาะวันที่เลือก
-        const dayRecords = data.filter(item => item.datetime && item.datetime.startsWith(selectedDate));
-        dayRecords.sort((a, b) => new Date(b.datetime) - new Date(a.datetime)); // เรียงเวลาล่าสุดขึ้นก่อน
+        // กรองตามช่วงวันที่เลือก
+        const filteredRecords = data.filter(item => {
+          if (!item.datetime) return false;
+          const itemDate = new Date(item.datetime);
+          return itemDate >= startDate && itemDate <= endDate;
+        });
 
+        // เรียงเวลาล่าสุดขึ้นก่อน
+        filteredRecords.sort((a, b) => new Date(b.datetime) - new Date(a.datetime));
+
+        // ตัวแปรเก็บยอดรวม
         let totalOz = 0;
+        let stats = {
+          breast: { oz: 0, count: 0 },
+          stock: { oz: 0, count: 0 },
+          formula: { oz: 0, count: 0 }
+        };
+
         let html = '';
 
-        if (dayRecords.length === 0) {
-          container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">ไม่มีรายการของวันที่เลือก</div>`;
+        if (filteredRecords.length === 0) {
+          container.innerHTML = `<div style="text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 12px;">ไม่มีรายการในช่วงเวลาที่เลือก</div>`;
         } else {
-          dayRecords.forEach(item => {
+          filteredRecords.forEach(item => {
             const oz = parseFloat(item.amount) || 0;
             totalOz += oz;
+
+            if (stats[item.source]) {
+              stats[item.source].oz += oz;
+              stats[item.source].count += 1;
+            }
+
+            const dt = new Date(item.datetime);
+            const dateDisplay = currentRangeDays > 1 ? `${dt.getDate()}/${dt.getMonth()+1} ` : '';
             const timeStr = item.datetime.includes('T') ? item.datetime.split('T')[1].slice(0, 5) : item.datetime;
 
             html += `
               <div class="history-item">
                 <div>
-                  <div class="history-time"><i class="fa-regular fa-clock"></i> ${timeStr} น.</div>
+                  <div class="history-time"><i class="fa-regular fa-clock"></i> ${dateDisplay}${timeStr} น.</div>
                   <div class="history-type">${sourceLabels[item.source] || item.source}</div>
                 </div>
                 <div class="history-amount">${oz} <span style="font-size:0.75rem; font-weight:normal;">oz</span></div>
@@ -164,9 +239,18 @@
           container.innerHTML = html;
         }
 
-        // อัปเดตการ์ดสรุปผล
-        document.getElementById('totalAmount').innerHTML = `${totalOz} <span style="font-size: 0.75rem; color: #fff;">ออนซ์</span>`;
-        document.getElementById('totalCount').innerHTML = `${dayRecords.length} <span style="font-size: 0.75rem; color: #fff;">ครั้ง</span>`;
+        // อัปเดตตัวเลขหน้าเว็บ
+        document.getElementById('totalAmount').innerHTML = `${totalOz} <span style="font-size:0.9rem; font-weight:normal;">oz</span>`;
+        document.getElementById('totalCount').innerText = `รวม ${filteredRecords.length} ครั้ง`;
+
+        document.getElementById('breastAmount').innerText = `${stats.breast.oz} oz`;
+        document.getElementById('breastCount').innerText = `(${stats.breast.count} ครั้ง)`;
+
+        document.getElementById('stockAmount').innerText = `${stats.stock.oz} oz`;
+        document.getElementById('stockCount').innerText = `(${stats.stock.count} ครั้ง)`;
+
+        document.getElementById('formulaAmount').innerText = `${stats.formula.oz} oz`;
+        document.getElementById('formulaCount').innerText = `(${stats.formula.count} ครั้ง)`;
 
       } catch (err) {
         console.error(err);
@@ -195,7 +279,7 @@
 
         if (response.ok) {
           document.getElementById('amount').value = '';
-          loadRecords(); // โหลดประวัติใหม่ทันที
+          loadRecords();
         }
       } catch (err) {
         alert('เกิดข้อผิดพลาดในการบันทึก');
