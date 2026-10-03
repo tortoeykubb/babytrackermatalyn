@@ -140,7 +140,7 @@
       </div>
     </div>
 
-    <!-- ประวัติการบันทึก ( History List ) -->
+    <!-- ประวัติการบันทึก (History List) -->
     <div class="card">
       <div class="card-title">
         <span><i class="fa-solid fa-clock-rotate-left" style="color: #64748b;"></i> ประวัติการทานนม</span>
@@ -338,6 +338,9 @@
         });
 
         if (response.ok) {
+          // Pop-up แจ้งเตือนเมื่อบันทึก/อัปเดตสำเร็จ
+          alert("น้องมาตาขอบคุณค่ะ 🍼✨");
+          
           cancelEdit();
           loadRecords();
         } else {
