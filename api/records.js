@@ -6,6 +6,21 @@ const SOURCE_LABELS = {
   formula: "นมผง",
 };
 
+// ฟังก์ชันสำหรับกรองลบข้อมูลที่เก่ากว่า 30 วันออกอัตโนมัติ
+function filterLast30Days(records) {
+  if (!Array.isArray(records)) return [];
+  
+  const now = new Date();
+  const thirtyDaysAgo = new Date();
+  thirtyDaysAgo.setDate(now.getDate() - 30); // ย้อนหลัง 30 วัน
+
+  return records.filter(record => {
+    if (!record.datetime) return false;
+    const recordDate = new Date(record.datetime);
+    return recordDate >= thirtyDaysAgo;
+  });
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -16,13 +31,24 @@ export default async function handler(req, res) {
   }
 
   try {
-    // GET: ดึงข้อมูลทั้งหมดจาก KV Storage
+    // ดึงข้อมูลเดิมจาก Database
+    let recordsDatabase = (await kv.get('baby_milk_records')) || [];
+    
+    // กรองเอาเฉพาะข้อมูลไม่เกิน 30 วัน
+    const cleanedRecords = filterLast30Days(recordsDatabase);
+
+    // ถ้ามีการลบข้อมูลเก่าออก ให้เซฟปรับปรุงลง Database ทันที
+    if (cleanedRecords.length !== recordsDatabase.length) {
+      recordsDatabase = cleanedRecords;
+      await kv.set('baby_milk_records', recordsDatabase);
+    }
+
+    // GET: ดึงข้อมูล
     if (req.method === 'GET') {
-      const recordsDatabase = (await kv.get('baby_milk_records')) || [];
       return res.status(200).json(recordsDatabase);
     }
 
-    // POST: บันทึกรายการใหม่ลง KV Storage
+    // POST: บันทึกข้อมูลใหม่
     if (req.method === 'POST') {
       const record = req.body;
       if (!record || !record.datetime) {
@@ -30,10 +56,10 @@ export default async function handler(req, res) {
       }
       if (!record.id) record.id = Date.now().toString();
 
-      let recordsDatabase = (await kv.get('baby_milk_records')) || [];
       recordsDatabase.push(record);
       
-      // บันทึกกลับลงฐานข้อมูลถาวร
+      // กรองอีกครั้งก่อนบันทึก
+      recordsDatabase = filterLast30Days(recordsDatabase);
       await kv.set('baby_milk_records', recordsDatabase);
 
       // ส่งแจ้งเตือน LINE
@@ -69,11 +95,11 @@ export default async function handler(req, res) {
     // PUT: แก้ไขข้อมูล
     if (req.method === 'PUT') {
       const { id, datetime, amount, source } = req.body || {};
-      let recordsDatabase = (await kv.get('baby_milk_records')) || [];
       const index = recordsDatabase.findIndex(r => r.id === id);
 
       if (index !== -1) {
         recordsDatabase[index] = { id, datetime, amount, source };
+        recordsDatabase = filterLast30Days(recordsDatabase);
         await kv.set('baby_milk_records', recordsDatabase);
         return res.status(200).json({ success: true, record: recordsDatabase[index] });
       } else {
@@ -84,7 +110,6 @@ export default async function handler(req, res) {
     // DELETE: ลบข้อมูล
     if (req.method === 'DELETE') {
       const { id } = req.body || {};
-      let recordsDatabase = (await kv.get('baby_milk_records')) || [];
       recordsDatabase = recordsDatabase.filter(r => r.id !== id);
       await kv.set('baby_milk_records', recordsDatabase);
       return res.status(200).json({ success: true });
