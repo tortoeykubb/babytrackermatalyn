@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { kv } from '@upstash/redis';
 
 const SOURCE_LABELS = {
   breast: "นมแม่ (เข้าเต้า)",
