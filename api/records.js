@@ -1,4 +1,8 @@
-import { kv } from '@upstash/redis';
+import Redis from 'ioredis';
+
+// ดึงการเชื่อมต่อจาก REDIS_URL ที่มีอยู่แล้วใน Vercel
+const redisUrl = process.env.REDIS_URL;
+const redis = redisUrl ? new Redis(redisUrl) : null;
 
 const SOURCE_LABELS = {
   breast: "นมแม่ (เข้าเต้า)",
@@ -6,13 +10,12 @@ const SOURCE_LABELS = {
   formula: "นมผง",
 };
 
-// ฟังก์ชันสำหรับกรองลบข้อมูลที่เก่ากว่า 30 วันออกอัตโนมัติ
+// กรองลบข้อมูลที่เก่ากว่า 30 วันออกอัตโนมัติ
 function filterLast30Days(records) {
   if (!Array.isArray(records)) return [];
-  
   const now = new Date();
   const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(now.getDate() - 30); // ย้อนหลัง 30 วัน
+  thirtyDaysAgo.setDate(now.getDate() - 30);
 
   return records.filter(record => {
     if (!record.datetime) return false;
@@ -30,17 +33,20 @@ export default async function handler(req, res) {
     return res.status(200).end();
   }
 
+  if (!redis) {
+    console.error("REDIS_URL is missing");
+    return res.status(500).json({ error: 'REDIS_URL environment variable is missing' });
+  }
+
   try {
-    // ดึงข้อมูลเดิมจาก Database
-    let recordsDatabase = (await kv.get('baby_milk_records')) || [];
+    const rawData = await redis.get('baby_milk_records');
+    let recordsDatabase = rawData ? JSON.parse(rawData) : [];
     
-    // กรองเอาเฉพาะข้อมูลไม่เกิน 30 วัน
     const cleanedRecords = filterLast30Days(recordsDatabase);
 
-    // ถ้ามีการลบข้อมูลเก่าออก ให้เซฟปรับปรุงลง Database ทันที
     if (cleanedRecords.length !== recordsDatabase.length) {
       recordsDatabase = cleanedRecords;
-      await kv.set('baby_milk_records', recordsDatabase);
+      await redis.set('baby_milk_records', JSON.stringify(recordsDatabase));
     }
 
     // GET: ดึงข้อมูล
@@ -57,16 +63,14 @@ export default async function handler(req, res) {
       if (!record.id) record.id = Date.now().toString();
 
       recordsDatabase.push(record);
-      
-      // กรองอีกครั้งก่อนบันทึก
       recordsDatabase = filterLast30Days(recordsDatabase);
-      await kv.set('baby_milk_records', recordsDatabase);
+      
+      await redis.set('baby_milk_records', JSON.stringify(recordsDatabase));
 
-      // ส่งแจ้งเตือน LINE
-      const token = process.env.LINE_CHANNEL_ACCESS_TOKEN;
-      const to = process.env.LINE_TO;
+      const tokenLine = process.env.LINE_CHANNEL_ACCESS_TOKEN;
+      const toLine = process.env.LINE_TO;
 
-      if (token) {
+      if (tokenLine) {
         const [date, time] = record.datetime.split("T");
         const text =
           `🍼 บันทึกการกินนมใหม่\n` +
@@ -74,15 +78,15 @@ export default async function handler(req, res) {
           `ปริมาณ: ${record.amount} ออนซ์\n` +
           `ประเภท: ${SOURCE_LABELS[record.source] ?? record.source}`;
 
-        const endpoint = to ? "push" : "broadcast";
+        const endpoint = toLine ? "push" : "broadcast";
         try {
           await fetch(`https://api.line.me/v2/bot/message/${endpoint}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`
+              Authorization: `Bearer ${tokenLine}`
             },
-            body: JSON.stringify(to ? { to, messages: [{ type: "text", text }] } : { messages: [{ type: "text", text }] }),
+            body: JSON.stringify(toLine ? { to: toLine, messages: [{ type: "text", text }] } : { messages: [{ type: "text", text }] }),
           });
         } catch (err) {
           console.error("LINE notification error", err);
@@ -100,7 +104,7 @@ export default async function handler(req, res) {
       if (index !== -1) {
         recordsDatabase[index] = { id, datetime, amount, source };
         recordsDatabase = filterLast30Days(recordsDatabase);
-        await kv.set('baby_milk_records', recordsDatabase);
+        await redis.set('baby_milk_records', JSON.stringify(recordsDatabase));
         return res.status(200).json({ success: true, record: recordsDatabase[index] });
       } else {
         return res.status(404).json({ error: 'Record not found' });
@@ -111,7 +115,7 @@ export default async function handler(req, res) {
     if (req.method === 'DELETE') {
       const { id } = req.body || {};
       recordsDatabase = recordsDatabase.filter(r => r.id !== id);
-      await kv.set('baby_milk_records', recordsDatabase);
+      await redis.set('baby_milk_records', JSON.stringify(recordsDatabase));
       return res.status(200).json({ success: true });
     }
 
